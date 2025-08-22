@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,136 +110,244 @@ export default function DynamicForm({ contractType, onSubmit, onBack, onGenerate
     }
   };
 
-  const renderField = (field: any) => {
+  const renderField = (field: any, index: number) => {
     const hasError = errors[field.id];
     const suggestions = grammarSuggestions[field.id] || [];
+
+    const fieldVariants = {
+      hidden: { opacity: 0, x: -20 },
+      visible: { 
+        opacity: 1, 
+        x: 0,
+        transition: { 
+          duration: 0.5,
+          delay: index * 0.1
+        }
+      }
+    };
 
     switch (field.type) {
       case 'textarea':
         return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium text-black">
+          <motion.div 
+            key={field.id} 
+            className="space-y-2"
+            variants={fieldVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Label htmlFor={field.id} className="text-sm font-medium text-foreground">
               {field.label} {field.required && '*'}
             </Label>
-            <Textarea
-              id={field.id}
-              value={formData[field.id] || ''}
-              onChange={(e) => handleInputChange(field.id, e.target.value)}
-              className={`resize-vertical ${hasError ? 'border-red-500 focus:ring-red-500' : ''}`}
-              rows={4}
-              data-testid={`input-${field.id}`}
-            />
+            <motion.div
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Textarea
+                id={field.id}
+                value={formData[field.id] || ''}
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                className={`resize-vertical transition-all duration-200 ${hasError ? 'border-destructive focus:ring-destructive' : ''}`}
+                rows={4}
+                data-testid={`input-${field.id}`}
+              />
+            </motion.div>
             {hasError && (
-              <p className="text-red-600 text-sm" data-testid={`error-${field.id}`}>{hasError}</p>
+              <motion.p 
+                className="text-destructive text-sm" 
+                data-testid={`error-${field.id}`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {hasError}
+              </motion.p>
             )}
             {suggestions.length > 0 && (
-              <div className="text-sm text-orange-600" data-testid={`suggestions-${field.id}`}>
+              <motion.div 
+                className="text-sm text-orange-600" 
+                data-testid={`suggestions-${field.id}`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
                 Grammar suggestions: {suggestions.map(s => s.message).join(', ')}
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         );
 
       case 'select':
         return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium text-black">
+          <motion.div 
+            key={field.id} 
+            className="space-y-2"
+            variants={fieldVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Label htmlFor={field.id} className="text-sm font-medium text-foreground">
               {field.label} {field.required && '*'}
             </Label>
-            <Select
-              value={formData[field.id] || ''}
-              onValueChange={(value) => handleInputChange(field.id, value)}
+            <motion.div
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
             >
-              <SelectTrigger className={hasError ? 'border-red-500 focus:ring-red-500' : ''} data-testid={`select-${field.id}`}>
-                <SelectValue placeholder={`Select ${field.label.toLowerCase()}...`} />
-              </SelectTrigger>
-              <SelectContent>
-                {field.options?.map((option: string) => (
-                  <SelectItem key={option} value={option} data-testid={`option-${field.id}-${option.replace(/\s+/g, '-').toLowerCase()}`}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select
+                value={formData[field.id] || ''}
+                onValueChange={(value) => handleInputChange(field.id, value)}
+              >
+                <SelectTrigger className={`transition-all duration-200 ${hasError ? 'border-destructive focus:ring-destructive' : ''}`} data-testid={`select-${field.id}`}>
+                  <SelectValue placeholder={`Select ${field.label.toLowerCase()}...`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {field.options?.map((option: string) => (
+                    <SelectItem key={option} value={option} data-testid={`option-${field.id}-${option.replace(/\s+/g, '-').toLowerCase()}`}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </motion.div>
             {hasError && (
-              <p className="text-red-600 text-sm" data-testid={`error-${field.id}`}>{hasError}</p>
+              <motion.p 
+                className="text-destructive text-sm" 
+                data-testid={`error-${field.id}`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {hasError}
+              </motion.p>
             )}
-          </div>
+          </motion.div>
         );
 
       default:
         return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium text-black">
+          <motion.div 
+            key={field.id} 
+            className="space-y-2"
+            variants={fieldVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Label htmlFor={field.id} className="text-sm font-medium text-foreground">
               {field.label} {field.required && '*'}
             </Label>
-            <Input
-              id={field.id}
-              type={field.type}
-              value={formData[field.id] || ''}
-              onChange={(e) => handleInputChange(field.id, e.target.value)}
-              className={hasError ? 'border-red-500 focus:ring-red-500' : ''}
-              data-testid={`input-${field.id}`}
-            />
+            <motion.div
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Input
+                id={field.id}
+                type={field.type}
+                value={formData[field.id] || ''}
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                className={`transition-all duration-200 ${hasError ? 'border-destructive focus:ring-destructive' : ''}`}
+                data-testid={`input-${field.id}`}
+              />
+            </motion.div>
             {hasError && (
-              <p className="text-red-600 text-sm" data-testid={`error-${field.id}`}>{hasError}</p>
+              <motion.p 
+                className="text-destructive text-sm" 
+                data-testid={`error-${field.id}`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {hasError}
+              </motion.p>
             )}
             {suggestions.length > 0 && (
-              <div className="text-sm text-orange-600" data-testid={`suggestions-${field.id}`}>
+              <motion.div 
+                className="text-sm text-orange-600" 
+                data-testid={`suggestions-${field.id}`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
                 Grammar suggestions: {suggestions.map(s => s.message).join(', ')}
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         );
     }
   };
 
   return (
-    <div data-testid="dynamic-form">
-      <div className="bg-white rounded-xl border border-gray-200 p-8 mb-8">
-        <div className="mb-6">
-          <button
+    <motion.div 
+      data-testid="dynamic-form"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className="bg-card rounded-xl border border-border p-8 mb-8">
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <motion.button
             onClick={onBack}
-            className="text-gray-600 hover:text-black transition-colors mb-4 flex items-center gap-2"
+            className="text-muted-foreground hover:text-foreground transition-colors mb-4 flex items-center gap-2"
             data-testid="button-back"
+            whileHover={{ x: -5 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Contract Types
-          </button>
-          <h3 className="text-2xl font-semibold text-black mb-2" data-testid="form-title">
+          </motion.button>
+          <h3 className="text-2xl font-semibold text-foreground mb-2" data-testid="form-title">
             {template.title}
           </h3>
-          <p className="text-gray-600" data-testid="form-description">
+          <p className="text-muted-foreground" data-testid="form-description">
             {template.description}
           </p>
-        </div>
+        </motion.div>
 
-        <form className="space-y-6" data-testid="contract-form">
-          {template.fields.map(renderField)}
+        <motion.form 
+          className="space-y-6" 
+          data-testid="contract-form"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          {template.fields.map((field, index) => renderField(field, index))}
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handlePreview}
-              className="flex-1"
-              data-testid="button-preview"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview Contract
-            </Button>
-            <Button
-              type="button"
-              onClick={handleGenerate}
-              className="flex-1 bg-black text-white hover:bg-gray-800"
-              data-testid="button-generate"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Generate Contract
-            </Button>
-          </div>
-        </form>
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePreview}
+                className="w-full"
+                data-testid="button-preview"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Contract
+              </Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="button"
+                onClick={handleGenerate}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                data-testid="button-generate"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Contract
+              </Button>
+            </motion.div>
+          </motion.div>
+        </motion.form>
       </div>
-    </div>
+    </motion.div>
   );
 }

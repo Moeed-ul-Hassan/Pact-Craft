@@ -1,4 +1,5 @@
 import { Shield, Handshake, Bus, Code, Palette, PenTool, Lightbulb, CreditCard } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface ContractTypeCard {
   id: string;
@@ -63,34 +64,85 @@ interface ContractTypeSelectorProps {
 }
 
 export default function ContractTypeSelector({ onSelect }: ContractTypeSelectorProps) {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
-    <div data-testid="contract-selector">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-semibold text-black mb-4" data-testid="title-main">Generate Professional Contracts</h2>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto" data-testid="text-description">
+    <motion.div 
+      data-testid="contract-selector"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <motion.div 
+        className="text-center mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <h2 className="text-3xl font-semibold text-foreground mb-4" data-testid="title-main">Generate Professional Contracts</h2>
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto" data-testid="text-description">
           Create legally-sound contracts in minutes. Choose from our comprehensive template library designed for freelancers, agencies, and consultants.
         </p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {contractTypes.map((type) => {
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {contractTypes.map((type, index) => {
           const IconComponent = type.icon;
           return (
-            <div
+            <motion.div
               key={type.id}
-              className="bg-white border border-gray-200 rounded-xl p-6 cursor-pointer hover:border-black hover:shadow-md transition-all duration-200"
+              variants={cardVariants}
+              className="bg-card border border-border rounded-xl p-6 cursor-pointer transition-colors duration-200"
               onClick={() => onSelect(type.id)}
               data-testid={`card-contract-${type.id}`}
+              whileHover={{ 
+                scale: 1.05, 
+                y: -5,
+                transition: { duration: 0.2 }
+              }}
+              whileTap={{ 
+                scale: 0.95,
+                transition: { duration: 0.1 }
+              }}
             >
               <div className="text-center">
-                <IconComponent className="text-2xl text-black mb-4 h-8 w-8 mx-auto" />
-                <h3 className="font-medium text-black mb-2" data-testid={`title-${type.id}`}>{type.title}</h3>
-                <p className="text-sm text-gray-600" data-testid={`description-${type.id}`}>{type.description}</p>
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <IconComponent className="text-foreground mb-4 h-8 w-8 mx-auto" />
+                </motion.div>
+                <h3 className="font-medium text-foreground mb-2" data-testid={`title-${type.id}`}>{type.title}</h3>
+                <p className="text-sm text-muted-foreground" data-testid={`description-${type.id}`}>{type.description}</p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
